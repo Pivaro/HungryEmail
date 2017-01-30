@@ -8,7 +8,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password,SmtpServer):
+def HungryTest(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password,SmtpServer):
 	#This function gets todays courses and send them as email
 
 	#Where in time are we?
@@ -16,6 +16,7 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 	Week=Today.isocalendar()[1]
 	Weekday=Today.weekday() #Monday=0!
 	if Weekday<5: #Don't send email on week-ends
+		#TIME
 		Days=list(calendar.day_name)
 		Day=Days[Weekday].lower()
 		#Now we want the swedish day
@@ -23,6 +24,11 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 		Dagar=list(calendar.day_name)
 		Dag=Dagar[Weekday].lower()
 		
+		#OUTPUT VARIABLES
+		CourseDescription=[]
+		CourseType=[]
+		Place=[]
+
 		#EDISON
 		#Get soup
 		EdisonUrl = request.urlopen("http://www.restaurangedison.se/lunch")
@@ -36,11 +42,11 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 		Course.append(Course[0].findNext("tr"))
 		Course.append(Course[1].findNext("tr"))
 
-		CourseDescription=[]
-		CourseType=[]
+
 		for c in Course:
 			CourseDescription.append(c.find("td", {'class': 'course_description'}).getText())
 			CourseType.append(c.find("td", {'class': 'course_type'}).getText())
+			Place.append(1)
 
 		#CAFÉ BRYGGAN
 		#Get soup
@@ -60,29 +66,66 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 		BrygganText=BrygganP[Weekday*2+1].getText()
 		CourseDescription.append(BrygganText.split(': ')[1])
 		CourseType.append(BrygganText.split(': ')[0]) #Dummy course type
+		Place.append(2)
+
+		#FINN INN
+		#Get soup
+		FinnInnUrl = request.urlopen("http://www.finninn.se/lunch-meny/")
+		SoupSourceF = FinnInnUrl.read()
+		SoupF = bs(SoupSourceF, 'lxml')
+
+		#Find the menus for all days <div class="item-description-menu">
+		FinnInnTags=SoupF.find_all('div',{'class':'item-description-menu'},limit=5)
+		#Todays courses as string
+		FinnInnCourses=FinnInnTags[Weekday].getText()
+		FinnInnCourses=FinnInnCourses.replace('\t','').replace('\r','').strip().splitlines()
+
+		#Split course type and description, populate output list
+		for c in range(len(FinnInnCourses)):
+			if FinnInnCourses[c].count(':')>1: #Some poor typo protection
+				FinnInnCourses[c]=FinnInnCourses[c].replace(':','',FinnInnCourses[c].count(':')-1)
+			#Is there multiple courses with the same course type?
+			if FinnInnCourses[c].count(':')<1:
+				CourseDescription.append(FinnInnCourses[c].strip())
+				CourseType.append(CourseType[c-1]) #Same course type as the previous
+				Place.append(3)
+			else:
+				cSplit=FinnInnCourses[c].split(':')
+				CourseDescription.append(cSplit[1].strip())
+				CourseType.append(cSplit[0].strip())
+				Place.append(3)
 
 		#PREPARE EMAIL
-		#Text version
+		#Text and HTML version
 		#Edison
 		MessageText   = 'Edison\n'
-		for i in range(3):
-			MessageText += '\n' + CourseType[i] + ': ' + CourseDescription[i]
+		BodyHTML	  = '<p><h2>Edison</h2>'
+		for i in range(len(CourseDescription)):
+			if Place[i]==1:
+				MessageText += '\n' + CourseType[i] + ': ' + CourseDescription[i]
+				BodyHTML += '<b>' + CourseType[i] + ':</b> ' + CourseDescription[i] + '.<br>'
 		#Café Bryggan
-		MessageText  += '\nCafé Bryggan\n'
-		MessageText  += CourseType[3] + CourseDescription[3]
-			
+		MessageText  += '\nCafé Bryggan'
+		BodyHTML     += '<h2>Café Bryggan</h2>'
+		for i in range(len(CourseDescription)):
+			if Place[i]==2:
+				MessageText  += '\n' + CourseType[i] + CourseDescription[i]
+				BodyHTML += '<b>' + CourseType[i] + ':</b> ' + CourseDescription[i] + '.<br>'
+		#Finn Inn
+		MessageText  += '\nFinn Inn'
+		BodyHTML     += '<h2>Finn Inn</h2>'
+		for i in range(len(CourseDescription)):
+			if Place[i]==3:
+				MessageText  += '\n' + CourseType[i] + CourseDescription[i]
+				BodyHTML += '<b>' + CourseType[i] + ':</b> ' + CourseDescription[i] + '.<br>'
+		BodyHTML     += '</p>'
+
 		#HTML version
 		MessageHtml="""\
 		<html>
 		   <head></head>
 		   <body>
-		      <p><h2>Edison</h2>
-		      <b>{CourseType[0]}:</b> {CourseDescription[0]}.<br>
-		      <b>{CourseType[1]}:</b> {CourseDescription[1]}.<br>
-		      <b>{CourseType[2]}:</b> {CourseDescription[2]}.<br>
-		      <h2>Café Bryggan</h2>
-		      <b>{CourseType[3]}:</b> {CourseDescription[3]}.<br>
-		      </p>
+		       {BodyHTML}	
 		   </body>
 		</html>
 		""".format(**locals())
