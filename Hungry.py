@@ -8,7 +8,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-def HungryTest(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password,SmtpServer):
+def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password,SmtpServer):
 	#This function gets todays courses and send them as email
 
 	#Where in time are we?
