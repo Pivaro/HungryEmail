@@ -15,6 +15,7 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 	Today=datetime.today()
 	Week=Today.isocalendar()[1]
 	Weekday=Today.weekday() #Monday=0!
+	#Weekday=int(input("Please enter weekday [0-6]: "))
 	if Weekday<5: #Don't send email on week-ends
 		#TIME
 		Days=list(calendar.day_name)
@@ -30,70 +31,25 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 		Place=[]
 
 		#EDISON
-		#Get soup
-		EdisonUrl = request.urlopen("http://www.restaurangedison.se/lunch")
-		SoupSource = EdisonUrl.read()
-		Soup = bs(SoupSource, 'lxml')
-
-		#Tag todays weekday and its courses
-		DayTag=Soup.find("div",{'id':Day})
-		Course=[]
-		Course.append(DayTag.find("tr"))
-		Course.append(Course[0].findNext("tr"))
-		Course.append(Course[1].findNext("tr"))
-
-
-		for c in Course:
-			CourseDescription.append(c.find("td", {'class': 'course_description'}).getText())
-			CourseType.append(c.find("td", {'class': 'course_type'}).getText())
-			Place.append(1)
+		EdisonOut=GetEdison(Day)
+		#print(str(EdisonOut))
+		CourseDescription.extend(EdisonOut[0])
+		CourseType.extend(EdisonOut[1]) #Dummy course type
+		Place.extend(EdisonOut[2])
 
 		#CAFÉ BRYGGAN
-		#Get soup
-		BrygganUrl = request.urlopen("http://www.bryggancafe.se/veckans-lunch/")
-		SoupSourceB = BrygganUrl.read()
-		SoupB = bs(SoupSourceB, 'lxml')
-
-		#Tag start of week menu
-		BrygganTag=SoupB.find('img',{'class':'alignnone size-full wp-image-413'})
-		#Now we do 2*(Weekday+1) p-tag steps to get the course of the day
-		BrygganP=[]
-		BrygganP.append(BrygganTag.findNext('p'))
-		BrygganP.append(BrygganP[0].findNext('p')) #Mondays course
-		if Weekday>0:
-			for i in range(1,2*Weekday+1):
-				BrygganP.append(BrygganP[i].findNext('p'))
-		BrygganText=BrygganP[Weekday*2+1].getText()
-		CourseDescription.append(BrygganText.split(': ')[1])
-		CourseType.append(BrygganText.split(': ')[0]) #Dummy course type
-		Place.append(2)
+		BrygganOut=GetBryggan(Weekday)
+		#print(str(BrygganOut))
+		CourseDescription.append(BrygganOut[0])
+		CourseType.append(BrygganOut[1]) #Dummy course type
+		Place.append(BrygganOut[2])
 
 		#FINN INN
-		#Get soup
-		FinnInnUrl = request.urlopen("http://www.finninn.se/lunch-meny/")
-		SoupSourceF = FinnInnUrl.read()
-		SoupF = bs(SoupSourceF, 'lxml')
-
-		#Find the menus for all days <div class="item-description-menu">
-		FinnInnTags=SoupF.find_all('div',{'class':'item-description-menu'},limit=5)
-		#Todays courses as string
-		FinnInnCourses=FinnInnTags[Weekday].getText()
-		FinnInnCourses=FinnInnCourses.replace('\t','').replace('\r','').strip().splitlines()
-
-		#Split course type and description, populate output list
-		for c in range(len(FinnInnCourses)):
-			if FinnInnCourses[c].count(':')>1: #Some poor typo protection
-				FinnInnCourses[c]=FinnInnCourses[c].replace(':','',FinnInnCourses[c].count(':')-1)
-			#Is there multiple courses with the same course type?
-			if FinnInnCourses[c].count(':')<1:
-				CourseDescription.append(FinnInnCourses[c].strip())
-				CourseType.append(CourseType[c-1]) #Same course type as the previous
-				Place.append(3)
-			else:
-				cSplit=FinnInnCourses[c].split(':')
-				CourseDescription.append(cSplit[1].strip())
-				CourseType.append(cSplit[0].strip())
-				Place.append(3)
+		FinnInnOut=GetFinnInn(Weekday)
+		#print(str(FinnInnOut))
+		CourseDescription.extend(FinnInnOut[0])
+		CourseType.extend(FinnInnOut[1]) #Dummy course type
+		Place.extend(FinnInnOut[2])
 
 		#PREPARE EMAIL
 		#Text and HTML version
@@ -151,3 +107,96 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 		Problems = Server.sendmail(FromAddress,SendMailTo,MM.as_string())
 		Server.quit()
 		print(Problems)
+
+def GetEdison(Day):
+	try:
+		CourseDescription=[]
+		CourseType=[]
+		Place=[]
+		#Get soup
+		EdisonUrl = request.urlopen("http://www.restaurangedison.se/lunch")
+		SoupSource = EdisonUrl.read()
+		Soup = bs(SoupSource, 'lxml')
+
+		#Tag todays weekday and its courses
+		DayTag=Soup.find("div",{'id':Day})
+		Course=[]
+		Course.append(DayTag.find("tr"))
+		Course.append(Course[0].findNext("tr"))
+		Course.append(Course[1].findNext("tr"))
+
+		for c in Course:
+			CourseDescription.append(c.find("td", {'class': 'course_description'}).getText())
+			CourseType.append(c.find("td", {'class': 'course_type'}).getText())
+			Place.append(1)
+		return (CourseDescription,CourseType,Place)
+	except Exception as e:
+		CourseDescription=str(e)
+		CourseType='Error' #Error course type
+		Place=1
+		return (CourseDescription,CourseType,Place)
+
+def GetBryggan(Weekday):
+	try:
+		#CAFÉ BRYGGAN
+		#Get soup
+		BrygganUrl = request.urlopen("http://www.bryggancafe.se/veckans-lunch/")
+		SoupSourceB = BrygganUrl.read()
+		SoupB = bs(SoupSourceB, 'lxml')
+
+		#Tag start of week menu
+		BrygganTag=SoupB.find('img',{'class':'alignnone size-full wp-image-413'})
+		#Now we do 2*(Weekday+1) p-tag steps to get the course of the day
+		BrygganP=[]
+		BrygganP.append(BrygganTag.findNext('p'))
+		BrygganP.append(BrygganP[0].findNext('p')) #Mondays course
+		if Weekday>0:
+			for i in range(1,2*Weekday+1):
+				BrygganP.append(BrygganP[i].findNext('p'))
+		BrygganText=BrygganP[Weekday*2+1].getText()
+		CourseDescription=BrygganText.split(': ')[1]
+		CourseType=BrygganText.split(': ')[0] #Dummy course type
+		Place=2
+		return (CourseDescription,CourseType,Place)
+	except Exception as e:
+		CourseDescription=str(e)
+		CourseType='Error' #Error course type
+		Place=2
+		return (CourseDescription,CourseType,Place)
+
+def GetFinnInn(Weekday):
+	try:
+		CourseDescription=[]
+		CourseType=[]
+		Place=[]
+		#Get soup
+		FinnInnUrl = request.urlopen("http://www.finninn.se/lunch-meny/")
+		SoupSourceF = FinnInnUrl.read()
+		SoupF = bs(SoupSourceF, 'lxml')
+
+		#Find the menus for all days <div class="item-description-menu">
+		FinnInnTags=SoupF.find_all('div',{'class':'item-description-menu'},limit=5)
+		#Todays courses as string
+		FinnInnCourses=FinnInnTags[Weekday].getText()
+		FinnInnCourses=FinnInnCourses.replace('\t','').replace('\r','').strip().splitlines()
+
+		#Split course type and description, populate output list
+		for c in range(len(FinnInnCourses)):
+			if FinnInnCourses[c].count(':')>1: #Some poor typo protection
+				FinnInnCourses[c]=FinnInnCourses[c].replace(':','',FinnInnCourses[c].count(':')-1)
+			#Is there multiple courses with the same course type?
+			if FinnInnCourses[c].count(':')<1:
+				CourseDescription.append(FinnInnCourses[c].strip())
+				CourseType.append(CourseType[c-1]) #Same course type as the previous
+				Place.append(3)
+			else:
+				cSplit=FinnInnCourses[c].split(':')
+				CourseDescription.append(cSplit[1].strip())
+				CourseType.append(cSplit[0].strip())
+				Place.append(3)
+		return (CourseDescription,CourseType,Place)
+	except Exception as e:
+		CourseDescription=str(e)
+		CourseType='Error' #Error course type
+		Place=3
+		return (CourseDescription,CourseType,Place)
