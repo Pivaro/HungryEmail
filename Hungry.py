@@ -40,9 +40,9 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 		#CAFÉ BRYGGAN
 		BrygganOut=GetBryggan(Weekday)
 		#print(str(BrygganOut))
-		CourseDescription.append(BrygganOut[0])
-		CourseType.append(BrygganOut[1]) #Dummy course type
-		Place.append(BrygganOut[2])
+		CourseDescription.extend(BrygganOut[0])
+		CourseType.extend(BrygganOut[1]) #Dummy course type
+		Place.extend(BrygganOut[2])
 
 		#FINN INN
 		FinnInnOut=GetFinnInn(Weekday)
@@ -139,6 +139,9 @@ def GetEdison(Day):
 def GetBryggan(Weekday):
 	try:
 		#CAFÉ BRYGGAN
+		CourseDescription=[]
+		CourseType=[]
+		Place=[]
 		#Get soup
 		BrygganUrl = request.urlopen("http://www.bryggancafe.se/veckans-lunch/")
 		SoupSourceB = BrygganUrl.read()
@@ -148,15 +151,15 @@ def GetBryggan(Weekday):
 		BrygganTag=SoupB.find('img',{'class':'alignnone size-full wp-image-413'})
 		#Now we do 2*(Weekday+1) p-tag steps to get the course of the day
 		BrygganP=[]
-		BrygganP.append(BrygganTag.findNext('p'))
-		BrygganP.append(BrygganP[0].findNext('p')) #Mondays course
-		if Weekday>0:
-			for i in range(1,2*Weekday+1):
-				BrygganP.append(BrygganP[i].findNext('p'))
-		BrygganText=BrygganP[Weekday*2+1].getText()
-		CourseDescription=BrygganText.split(': ')[1]
-		CourseType=BrygganText.split(': ')[0] #Dummy course type
-		Place=2
+		BrygganP.append(BrygganTag.findNext('p')) #Monday <p>
+		for i in range(0,Weekday*3+3):
+			BrygganP.append(BrygganP[i].findNext('p'))
+		CourseDescription.append(BrygganP[Weekday*3+1].getText().split(': ')[1])
+		CourseDescription.append(BrygganP[Weekday*3+2].getText().split(': ')[1])
+		CourseType.append(BrygganP[Weekday*3+1].getText().split(': ')[0])
+		CourseType.append(BrygganP[Weekday*3+2].getText().split(': ')[0])
+		Place.append(2)
+		Place.append(2)
 		return (CourseDescription,CourseType,Place)
 	except Exception as e:
 		CourseDescription=str(e)
