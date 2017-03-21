@@ -131,9 +131,9 @@ def GetEdison(Day):
 			Place.append(1)
 		return (CourseDescription,CourseType,Place)
 	except Exception as e:
-		CourseDescription=str(e)
-		CourseType='Error' #Error course type
-		Place=1
+		CourseDescription.append(str(e))
+		CourseType.append('Error') #Error course type
+		Place.append(1)
 		return (CourseDescription,CourseType,Place)
 
 def GetBryggan(Weekday):
@@ -162,9 +162,9 @@ def GetBryggan(Weekday):
 		Place.append(2)
 		return (CourseDescription,CourseType,Place)
 	except Exception as e:
-		CourseDescription=str(e)
-		CourseType='Error' #Error course type
-		Place=2
+		CourseDescription.append(str(e))
+		CourseType.append('Error') #Error course type
+		Place.append(2)
 		return (CourseDescription,CourseType,Place)
 
 def GetFinnInn(Weekday):
@@ -199,7 +199,7 @@ def GetFinnInn(Weekday):
 				Place.append(3)
 		return (CourseDescription,CourseType,Place)
 	except Exception as e:
-		CourseDescription=str(e)
-		CourseType='Error' #Error course type
-		Place=3
+		CourseDescription.append(str(e))
+		CourseType.append('Error') #Error course type
+		Place.append(3)
 		return (CourseDescription,CourseType,Place)
