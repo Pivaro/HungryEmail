@@ -75,9 +75,13 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 			if Place[i]==3:
 				MessageText  += '\n' + CourseType[i] + CourseDescription[i]
 				BodyHTML += '<b>' + CourseType[i] + ':</b> ' + CourseDescription[i] + '.<br>'
-		BodyHTML     += '</p>'
-
+		
+		#Contribute?!
+		MessageText  += '\n\nContribute: https://github.com/Pivaro/HungryEmail'
+		BodyHTML	 += '<br><br><b>Contribute:</b> https://github.com/Pivaro/HungryEmail'
+		
 		#HTML version
+		BodyHTML     += '</p>'
 		MessageHtml="""\
 		<html>
 		   <head></head>
