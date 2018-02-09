@@ -21,7 +21,8 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 		Days=list(calendar.day_name)
 		Day=Days[Weekday].lower()
 		#Now we want the swedish day
-		locale.setlocale(locale.LC_TIME, "sv_SE.utf8")
+		#locale.setlocale(locale.LC_TIME,"sv_SE.utf8") #Linux environment
+		locale.setlocale(locale.LC_TIME,"sv-SV") #Windows environment
 		Dagar=list(calendar.day_name)
 		Dag=Dagar[Weekday].lower()
 		
