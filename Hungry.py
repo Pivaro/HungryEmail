@@ -14,8 +14,8 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 	#Where in time are we?
 	Today=datetime.today()
 	Week=Today.isocalendar()[1]
-	Weekday=Today.weekday() #Monday=0!
-	#Weekday=int(input("Please enter weekday [0-6]: "))
+	Weekday=Today.weekday() #Monday=0
+	#Weekday=int(input("Please enter weekday [0-6]: ")) #For testing
 	if Weekday<5: #Don't send email on week-ends
 		#TIME
 		Days=list(calendar.day_name)
@@ -35,21 +35,21 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 		EdisonOut=GetEdison(Day)
 		#print(str(EdisonOut))
 		CourseDescription.extend(EdisonOut[0])
-		CourseType.extend(EdisonOut[1]) #Dummy course type
+		CourseType.extend(EdisonOut[1]) 
 		Place.extend(EdisonOut[2])
 
 		#CAFÉ BRYGGAN
 		BrygganOut=GetBryggan(Weekday)
 		#print(str(BrygganOut))
 		CourseDescription.extend(BrygganOut[0])
-		CourseType.extend(BrygganOut[1]) #Dummy course type
+		CourseType.extend(BrygganOut[1]) 
 		Place.extend(BrygganOut[2])
 
 		#FINN INN
 		FinnInnOut=GetFinnInn(Weekday)
 		#print(str(FinnInnOut))
 		CourseDescription.extend(FinnInnOut[0])
-		CourseType.extend(FinnInnOut[1]) #Dummy course type
+		CourseType.extend(FinnInnOut[1])
 		Place.extend(FinnInnOut[2])
 
 		#PREPARE EMAIL
@@ -151,12 +151,14 @@ def GetBryggan(Weekday):
 		BrygganUrl = request.urlopen("http://www.bryggancafe.se/veckans-lunch/")
 		SoupSourceB = BrygganUrl.read()
 		SoupB = bs(SoupSourceB, 'lxml')
-
 		#Tag start of week menu
 		BrygganTag=SoupB.find('img',{'class':'alignnone size-full wp-image-413'})
-		#Now we do 2*(Weekday+1) p-tag steps to get the course of the day
+		BrygganTemp=[]
+		BrygganTemp.append(BrygganTag.findNext('p')) #Disregarded <p>
+		BrygganTemp.append(BrygganTemp[0].findNext('p')) #Disregarded <p>
 		BrygganP=[]
-		BrygganP.append(BrygganTag.findNext('p')) #Monday <p>
+		BrygganP.append(BrygganTemp[1].findNext('p')) #Monday <p>
+		#Now we do 2*(Weekday+1) p-tag steps to get the course of the day
 		for i in range(0,Weekday*3+3):
 			BrygganP.append(BrygganP[i].findNext('p'))
 		CourseDescription.append(BrygganP[Weekday*3+1].getText().split(': ')[1])
