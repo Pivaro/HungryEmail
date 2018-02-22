@@ -161,10 +161,10 @@ def GetBryggan(Weekday):
 		#Now we do 2*(Weekday+1) p-tag steps to get the course of the day
 		for i in range(0,Weekday*3+3):
 			BrygganP.append(BrygganP[i].findNext('p'))
-		CourseDescription.append(BrygganP[Weekday*3+1].getText().split(': ')[1])
-		CourseDescription.append(BrygganP[Weekday*3+2].getText().split(': ')[1])
-		CourseType.append(BrygganP[Weekday*3+1].getText().split(': ')[0])
-		CourseType.append(BrygganP[Weekday*3+2].getText().split(': ')[0])
+		CourseDescription.append(BrygganP[Weekday*3+1].getText().replace(u'\xa0', u' ').split(': ')[1])
+		CourseDescription.append(BrygganP[Weekday*3+2].getText().replace(u'\xa0', u' ').split(': ')[1])
+		CourseType.append(BrygganP[Weekday*3+1].getText().replace(u'\xa0', u' ').split(': ')[0])
+		CourseType.append(BrygganP[Weekday*3+2].getText().replace(u'\xa0', u' ').split(': ')[0])
 		Place.append(2)
 		Place.append(2)
 		return (CourseDescription,CourseType,Place)
