@@ -77,8 +77,8 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 				BodyHTML += '<b>' + CourseType[i] + ':</b> ' + CourseDescription[i] + '.<br>'
 		
 		#Contribute?!
-		MessageText  += '\n\nContribute: https://github.com/Pivaro/HungryEmail'
-		BodyHTML	 += '<br><br><b>Contribute:</b> https://github.com/Pivaro/HungryEmail'
+		MessageText  += '\n\nMedverka: https://github.com/Pivaro/HungryEmail'
+		BodyHTML	 += '<br><br><b>Medverka:</b> https://github.com/Pivaro/HungryEmail'
 		
 		#HTML version
 		BodyHTML     += '</p>'
@@ -119,7 +119,7 @@ def GetEdison(Day):
 		CourseType=[]
 		Place=[]
 		#Get soup
-		EdisonUrl = request.urlopen("http://www.restaurangedison.se/lunch")
+		EdisonUrl = request.urlopen("http://www.restaurangedison.se/lunch/")
 		SoupSource = EdisonUrl.read()
 		Soup = bs(SoupSource, 'lxml')
 
