@@ -52,6 +52,13 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 		CourseType.extend(FinnInnOut[1])
 		Place.extend(FinnInnOut[2])
 
+		#MOROTEN OCH PISKAN (Mop)
+		MopOut=GetMop(Dag)
+		#print(str(MopOut))
+		CourseDescription.extend(MopOut[0])
+		CourseType.extend(MopOut[1])
+		Place.extend(MopOut[2])
+
 		#PREPARE EMAIL
 		#Text and HTML version
 		#Edison
@@ -75,6 +82,13 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 			if Place[i]==3:
 				MessageText  += '\n' + CourseType[i] + CourseDescription[i]
 				BodyHTML += '<b>' + CourseType[i] + ':</b> ' + CourseDescription[i] + '.<br>'
+		#Moroten och piskan
+		MessageText  += '\nMoroten och Piskan'
+		BodyHTML     += '<h2>Moroten och Piskan</h2>'
+		for i in range(len(CourseDescription)):
+			if Place[i]==4:
+				MessageText  += '\n' + CourseType[i] + CourseDescription[i]
+				BodyHTML += '<b>' + CourseType[i] + ':</b> ' + CourseDescription[i] + '.<br>'
 		
 		#Contribute?!
 		MessageText  += '\n\nMedverka: https://github.com/Pivaro/HungryEmail'
@@ -84,10 +98,10 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 		BodyHTML     += '</p>'
 		MessageHtml="""\
 		<html>
-		   <head></head>
-		   <body>
-		       {BodyHTML}	
-		   </body>
+		    <head></head>
+		    <body>
+		        {BodyHTML}	
+		    </body>
 		</html>
 		""".format(**locals())
 
@@ -209,4 +223,32 @@ def GetFinnInn(Weekday):
 		CourseDescription.append(str(e))
 		CourseType.append('Error') #Error course type
 		Place.append(3)
+		return (CourseDescription,CourseType,Place)
+
+def GetMop(Dag):
+	try:
+		CourseDescription=[]
+		CourseType=[]
+		Place=[]
+		#Get soup
+		MopUrl = request.urlopen("http://morotenopiskan.se/lunch/")
+		SoupSource = MopUrl.read()
+		Soup = bs(SoupSource, 'lxml')
+		
+		#Tag the pretty weekdays and find todays tag
+		DayTags=Soup.findAll("div",{'class':'pretty-weekday'})
+		for d in DayTags: 
+			if d.text.strip()==Dag: #Today
+				DayTag=d.findNext("div",{'class':'event-info text-center'}) #Todays tag
+				Course=DayTag.findAll("span",{'style':'font-size: large;'}) #Todays courses
+
+		for c in Course:
+			CourseDescription.append(c.getText())
+			CourseType.append("Dagens")
+			Place.append(4)
+		return (CourseDescription,CourseType,Place)
+	except Exception as e:
+		CourseDescription.append(str(e))
+		CourseType.append('Error') #Error course type
+		Place.append(4)
 		return (CourseDescription,CourseType,Place)

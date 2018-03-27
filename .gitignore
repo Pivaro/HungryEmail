@@ -1,4 +1,5 @@
 
 SendHungryEmailPrivate.py
+TestHungryEmailPrivate.py
 *.pyc
 *.vscode
