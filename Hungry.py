@@ -53,7 +53,7 @@ def Hungry(FromAddress,ToAddressList,CcAddressList,BccAddressList,Login,Password
 		Place.extend(FinnInnOut[2])
 
 		#MOROTEN OCH PISKAN (Mop)
-		MopOut=GetMop(Dag)
+		MopOut=GetMop(datetime.today().day) #input todays calendar day
 		#print(str(MopOut))
 		CourseDescription.extend(MopOut[0])
 		CourseType.extend(MopOut[1])
@@ -236,17 +236,16 @@ def GetMop(Dag):
 		Soup = bs(SoupSource, 'lxml')
 		
 		#Tag the pretty weekdays and find todays tag
-		DayTags=Soup.findAll("div",{'class':'pretty-weekday'})
+		DayTags=Soup.find_all("div", {'class':"pretty-day"})
+		FoodTags=Soup.find_all("div", {'class':"event-info text-center"})
 		for d in DayTags: 
-			if d.text.strip()==Dag: #Today
-				DayTag=d.findNext("div",{'class':'event-info text-center'}) #Todays tag
-				Course=DayTag.findAll("span",{'style':'font-size: large;'}) #Todays courses
-
-		for c in Course:
-			CourseDescription.append(c.getText())
-			CourseType.append("Dagens")
-			Place.append(4)
-		return (CourseDescription,CourseType,Place)
+			if d.text.strip()==str(Dag): #Today
+				Courses=d.find_parent().find_next_sibling('div',{"class":'event-info text-center'}).getText().strip().split('\n')
+				for c in Courses:
+					CourseDescription.append(c)
+					CourseType.append("Dagens")
+					Place.append(4)
+				return (CourseDescription,CourseType,Place)
 	except Exception as e:
 		CourseDescription.append(str(e))
 		CourseType.append('Error') #Error course type
