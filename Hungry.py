@@ -258,6 +258,11 @@ def GetMop(Dag,Url):
 				list(filter(None,CourseType))
 				list(filter(None,Place))
 				return (CourseDescription,CourseType,Place)
+		# Well, if the day is not there it's probably close.
+		CourseDescription=["Det är kanske stängt"]
+		CourseType=['Stängt'] #Error course type
+		Place=[4]
+		return (CourseDescription,CourseType,Place)
 	except Exception as e:
 		CourseDescription=[str(e)]
 		CourseType=['Error'] #Error course type
