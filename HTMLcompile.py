@@ -1,8 +1,8 @@
 def HTMLcompile(BodyHTML):
-	#This function compiles HTML 
+        # This function compiles HTML
 
     # Styling from https://raw.githubusercontent.com/sendwithus/templates/master/templates/plain-jane/plain.html
-    HeadHTML	 ="""
+    HeadHTML = """
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Plain Jane Text</title>
@@ -213,9 +213,9 @@ def HTMLcompile(BodyHTML):
         </style>
     <![endif]-->
         """
-		
-		# HTML compiling
-    MessageHtml="""\
+
+    # HTML compiling
+    MessageHtml = """\
 		<html>
 		    <head>
 			{HeadHTML}
