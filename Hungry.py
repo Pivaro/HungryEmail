@@ -1,9 +1,10 @@
+# pylint: disable=invalid-name
 """[summary]
 
 Returns:
     [type] -- [description]
 """
-# pylint: disable=C0103
+
 import calendar
 import locale
 import smtplib

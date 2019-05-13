@@ -1,9 +1,21 @@
-def HTMLcompile(BodyHTML):
-        # This function compiles HTML
+# pylint: disable=invalid-name, line-too-long
+""" This function compiles HTML.
+Styling from https://raw.githubusercontent.com/sendwithus/templates/master/templates/plain-jane/plain.html
 
-    # Styling from https://raw.githubusercontent.com/sendwithus/templates/master/templates/plain-jane/plain.html
+Returns:
+    [type] -- [description]
+"""
+
+
+def HTMLcompile(BodyHTML):
+    """This function compiles HTML.
+    Styling from https://raw.githubusercontent.com/sendwithus/templates/master/templates/plain-jane/plain.html
+
+    Arguments:
+        BodyHTML {[type]} -- [description]
+    """
     HeadHTML = """
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Plain Jane Text</title>
     <style type="text/css">
@@ -216,10 +228,10 @@ def HTMLcompile(BodyHTML):
 
     # HTML compiling
     MessageHtml = """\
-		<html>
-		    <head>
-			{HeadHTML}
-			</head>
+        <html>
+            <head>
+            {HeadHTML}
+            </head>
 
     <body>
 
@@ -238,7 +250,7 @@ def HTMLcompile(BodyHTML):
                 <table>
                     <tr>
                     <td>
-		            {BodyHTML}	
+                    {BodyHTML}	
                     </td>
                     </tr>
                 </table>
@@ -279,7 +291,7 @@ def HTMLcompile(BodyHTML):
         </tr>
     </table>
     </body>
-		</html>
-	""".format(**locals())
+        </html>
+    """.format(**locals())
 
-    return (MessageHtml)
+    return MessageHtml

@@ -1,6 +1,6 @@
+# pylint: disable=invalid-name
 """Defines email settings and calls Hungry.Hungry
 """
-# pylint: disable=C0103
 from Hungry import Hungry
 
 # EMAIL SETTINGS
